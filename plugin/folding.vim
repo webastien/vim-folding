@@ -27,6 +27,10 @@ function PHPFoldLevel(l)
     return '>1'
   endif
 
+  if getline(a:l) =~ '^\S'
+    return '<1'
+  endif
+
   return '='
 endfunction
 
