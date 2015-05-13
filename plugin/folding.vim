@@ -10,6 +10,16 @@ function GetTrimmedLine(l)
  return substitute(getline(a:l), '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction
 
+function ShouldCloseFold(l)
+  let l = a:l + 1
+
+  while getline(l) !~ '\S'
+    let l = l + 1
+  endwhile
+
+  return (PHPFoldLevel(l) == '>1')
+endfunction
+
 function HasFunctionDeclaration(line)
   return a:line =~ '^\(public\s\+\)\?\(static\s\+\)\?function\s\+\w\+\s*('
     \ || a:line =~ '^\(protected\s\+\)\?function\s\+\w\+\s*('
@@ -27,7 +37,7 @@ function PHPFoldLevel(l)
     return '>1'
   endif
 
-  if getline(a:l) =~ '^\S'
+  if getline(a:l) =~ '^\S' || (strpart(line, 0, 2) == '}' && ShouldCloseFold(a:l))
     return '<1'
   endif
 
