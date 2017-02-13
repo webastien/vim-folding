@@ -1,3 +1,5 @@
+if exists('vim_folding__loaded') | finish | endif | let vim_folding__loaded = 1
+
 set fillchars+=fold:\  " BEWARE: This comment is important to keep the last space
 set foldcolumn=1
 set foldenable
