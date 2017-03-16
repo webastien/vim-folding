@@ -58,7 +58,7 @@ function PHPFoldSummary()
 
     return indent .'//'. strpart(nextLine, 1) .' (...)'
   elseif HasFunctionDeclaration(line)
-    return indent . line .'}'
+    return indent . line . SimpleFoldText() .' }'
   endif
 
   return SimpleFoldText()
