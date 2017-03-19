@@ -13,37 +13,19 @@ function GetTrimmedLine(l)
 endfunction
 
 function ShouldCloseFold(l)
-  let l = a:l + 1
-
-  while getline(l) !~ '\S'
-    let l = l + 1
-  endwhile
-
-  return (PHPFoldLevel(l) == '>1')
+  let l = a:l + 1 | while getline(l) !~ '\S' | let l = l + 1 | endwhile | return (PHPFoldLevel(l) == '>1')
 endfunction
 
 function HasFunctionDeclaration(line)
-  return a:line =~ '^\(public\s\+\)\?\(static\s\+\)\?function\s\+\w\+\s*('
-    \ || a:line =~ '^\(protected\s\+\)\?function\s\+\w\+\s*('
-    \ || a:line =~ '^\(private\s\+\)\?function\s\+\w\+\s*('
+  return a:line =~ '^\(public\s\+\(static\s\+\)\?\|abstract\s\+\|protected\s\+\|private\s\+\)\?function\s\+\w\+\s*('
 endfunction
 
 function PHPFoldLevel(l)
   let line = GetTrimmedLine(a:l)
-
-  if strpart(line, 0, 2) == '*/'
-    return '<1'
-  endif
-
-  if strpart(line, 0, 3) == '/**' || HasFunctionDeclaration(line)
-    return '>1'
-  endif
-
-  if getline(a:l) =~ '^\S' || (strpart(line, 0, 2) == '}' && ShouldCloseFold(a:l))
-    return '<1'
-  endif
-
-  return '='
+  if strpart(line, 0, 2) == '*/'                                                        | return '<1' | endif
+  if strpart(line, 0, 3) == '/**' || (line !~ '\}\s*$' && HasFunctionDeclaration(line)) | return '>1' | endif
+  if getline(a:l) =~ '^\S' || (strpart(line, 0, 2) == '}' && ShouldCloseFold(a:l))      | return '<1' | endif
+                                                                                          return '='
 endfunction
 
 function PHPFoldSummary()
@@ -51,15 +33,9 @@ function PHPFoldSummary()
 
   if strpart(line, 0, 3) == '/**'
     let nextLine = GetTrimmedLine(v:foldstart + 1)
-
-    if v:foldend - v:foldstart == 2
-      return indent . substitute(nextLine, "^\\**", "//", "")
-    endif
-
+    if v:foldend - v:foldstart == 2 | return indent . substitute(nextLine, "^\\**", "//", "") | endif
     return indent .'//'. strpart(nextLine, 1) .' (...)'
-  elseif HasFunctionDeclaration(line)
-    return indent . line . SimpleFoldText() .' }'
-  endif
+  elseif HasFunctionDeclaration(line) | return indent . line . SimpleFoldText() .' }' | endif
 
   return SimpleFoldText()
 endfunction
